@@ -13,7 +13,7 @@
       margin: 0 auto;
       padding: 20px;
     }
-    input[type=text] {
+    input[type=text], select {
       width: 70%;
       padding: 10px;
       font-size: 16px;
@@ -33,10 +33,22 @@
     li {
       padding: 10px;
       border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     li.completed {
       text-decoration: line-through;
       color: #888;
+    }
+    .priority-high {
+      background-color: #ffcdd2;
+    }
+    .priority-medium {
+      background-color: #fff9c4;
+    }
+    .priority-low {
+      background-color: #c8e6c9;
     }
   </style>
 </head>
@@ -44,6 +56,11 @@
   <div class="container">
     <h1>ADHD To-Do List</h1>
     <input type="text" id="task-input" placeholder="Enter a task">
+    <select id="priority-select">
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
     <button onclick="addTask()">Add Task</button>
     <ul id="task-list"></ul>
   </div>
@@ -53,16 +70,19 @@
 
     function addTask() {
       const taskInput = document.getElementById('task-input');
+      const prioritySelect = document.getElementById('priority-select');
       const taskText = taskInput.value.trim();
       if (taskText !== '') {
         const task = {
           text: taskText,
           completed: false,
+          priority: prioritySelect.value,
           timestamp: new Date().toLocaleString()
         };
         tasks.push(task);
         displayTasks();
         taskInput.value = '';
+        prioritySelect.value = 'high';
       }
     }
 
@@ -72,17 +92,27 @@
       tasks.forEach((task, index) => {
         const li = document.createElement('li');
         li.classList.toggle('completed', task.completed);
+        li.classList.add(`priority-${task.priority}`);
         li.innerHTML = `${index + 1}. ${task.text} - ${task.timestamp}`;
         const completeButton = document.createElement('button');
         completeButton.textContent = task.completed ? 'Undo' : 'Complete';
         completeButton.onclick = () => toggleTaskCompletion(index);
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deleteTask(index);
         li.appendChild(completeButton);
+        li.appendChild(deleteButton);
         taskList.appendChild(li);
       });
     }
 
     function toggleTaskCompletion(index) {
       tasks[index].completed = !tasks[index].completed;
+      displayTasks();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
       displayTasks();
     }
   </script>
